@@ -1,0 +1,43 @@
+-- UI-only Studio preview: no gameplay script, remotes, or executor code is run.
+local UI = require(game:GetService("ReplicatedStorage"):WaitForChild("MatchaUI").MatchaUI)
+local library = UI.createLibrary()
+local window = library:CreateWindow({ Title = "matcha", Footer = "UI preview", AutoShow = true })
+local tabs = UI.createTabs(library, window)
+local changed = 0
+local aimbot = tabs.Main:AddLeftGroupbox("Aimbot")
+local enabled = aimbot:AddToggle("PreviewEnabled", {
+    Text = "Enabled", Default = false,
+    Callback = function() changed += 1 end,
+})
+enabled:AddKeyPicker("PreviewBind", { Default = "Q", Mode = "Toggle", SyncToggleState = true })
+local countBefore = changed
+enabled:SetValue(true)
+assert(changed == countBefore + 1, "Toggle must fire its callback once")
+assert(library.Toggles.PreviewEnabled == enabled, "Control identity must be preserved")
+aimbot:AddDropdown("PreviewMode", { Text = "Target selection", Values = { "Closest", "Distance", "Health" }, Default = 1 })
+aimbot:AddDropdown("PreviewChecks", { Text = "Checks", Values = { "Team", "Visible", "Alive" }, Multi = true, Default = { "Alive" } })
+aimbot:AddSlider("PreviewFOV", { Text = "Field of view", Min = 0, Max = 180, Default = 0, Rounding = 0, Suffix = "°" })
+local accuracy = tabs.Main:AddRightGroupbox("Accuracy")
+accuracy:AddSlider("PreviewAccuracy", { Text = "Accuracy", Min = 0, Max = 100, Default = 75, Rounding = 0, Suffix = "%" })
+accuracy:AddLabel("Accent"):AddColorPicker("PreviewColor", { Default = Color3.fromRGB(192, 192, 192), Transparency = 0 })
+local auto = tabs.Target:AddLeftGroupbox("Auto")
+local dependent = auto:AddDependencyBox()
+dependent:AddToggle("PreviewAuto", { Text = "Automatic", Default = false })
+dependent:SetupDependencies({ { enabled, true } })
+local subTabs = tabs.Player:AddRightTabbox("Character")
+subTabs:AddTab("Position"):AddToggle("PreviewPosition", { Text = "Enabled", Default = false })
+subTabs:AddTab("Movement"):AddSlider("PreviewSpeed", { Text = "Speed", Min = 0, Max = 100, Default = 16, Rounding = 0 })
+tabs.Visual:AddLeftGroupbox("Visuals"):AddToggle("PreviewVisuals", { Text = "Enabled", Default = false })
+tabs.World:AddLeftGroupbox("World"):AddSlider("PreviewTime", { Text = "Time", Min = 0, Max = 24, Default = 12, Rounding = 1 })
+tabs.Inventory:AddLeftGroupbox("Inventory"):AddDropdown("PreviewWeapon", { Text = "Weapon", Values = { "Default", "Secondary" }, Default = 1 })
+local profile = tabs['UI Settings']:AddLeftGroupbox("Profile")
+profile:AddInput("PreviewName", { Text = "Name", Default = "Default", Finished = true })
+profile:AddLabel("Menu bind"):AddKeyPicker("PreviewMenu", { Default = "RightShift", NoUI = true })
+library.ToggleKeybind = library.Options.PreviewMenu
+profile:AddButton("Unload", function() library:Unload() end)
+assert(tabs.Main == tabs.Target and tabs.Player == tabs.Character, "Legacy tab aliases changed")
+aimbot:SetCollapsed(true)
+assert(aimbot.Collapsed and not aimbot.Container.Visible, "Collapse must hide controls")
+aimbot:SetCollapsed(false)
+assert(not aimbot.Collapsed and aimbot.Container.Visible, "Expand must restore controls")
+print("Matcha UI preview initialized; Studio assertions passed")

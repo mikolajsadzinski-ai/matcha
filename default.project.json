@@ -1,0 +1,17 @@
+{
+  "name": "MatchaUI",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "MatchaUI": { "$path": "ui" }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "MatchaPreview": { "$path": "studio/Preview.client.lua" }
+      }
+    }
+  }
+}
