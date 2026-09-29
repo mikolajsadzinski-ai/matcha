@@ -65,10 +65,10 @@ coroutine.wrap(function()
     warn('[+] matcha : anticheat bypassed.')
 end)()
 
-local repo = 'https://raw.githubusercontent.com/Kazamatcha/asmobile/refs/heads/main/'
-local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
-local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
-local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+-- The UI bundle is generated from ui/ modules by tools/build_ui.py.
+local MatchaUI = loadstring(game:HttpGet('https://raw.githubusercontent.com/mikolajsadzinski-ai/matcha/coderabbit/redesign-roblox-gui/f2033e82/dist/MatchaUI.lua'))()
+local Library = MatchaUI.createLibrary()
+local ThemeManager, SaveManager = MatchaUI.createManagers(Library)
 local Options = Library.Options
 local Toggles = Library.Toggles
 
@@ -137,17 +137,7 @@ if not isOwner then
     end
 end
 
-local Tabs = {
-    Main = Window:AddTab('Main', 'sword'),
-    Target = Window:AddTab('Target', 'target'),
-    Player = Window:AddTab('Player', 'users'),
-    Visual = Window:AddTab('Visual', 'eye'),
-    World = Window:AddTab('World', 'trees'),
-    Character = Window:AddTab('Character', 'user'),
-    Misc = Window:AddTab('Misc', 'heart'),
-    Extra = Window:AddTab('Extra', 'star'),
-    ['UI Settings'] = Window:AddTab('UI Settings', 'settings'),
-}
+local Tabs = MatchaUI.createTabs(Library, Window)
 local previousTargetHealth = {}
 local BuyingActive = false
 local AutoKillActive = false
@@ -4015,7 +4005,7 @@ if MainEvent then
         end
     end)
 end
-local GunModsGroup = Tabs.Main:AddRightGroupbox('Gun Mods')
+local GunModsGroup = Tabs.Inventory:AddRightGroupbox('Gun Mods')
 local BulletTpGroup = Tabs.Main:AddLeftGroupbox('Bullet Tp')
 
 if getnamecallmethod then
@@ -9938,7 +9928,7 @@ end)
     end)
 
     if isDaHood then
-        local AutoBuyGroup = Tabs.Misc:AddLeftGroupbox('AutoBuy')
+        local AutoBuyGroup = Tabs.Inventory:AddLeftGroupbox('AutoBuy')
 
         AutoBuyGroup:AddToggle('AutoBuyGunAmmo', {
             Text = 'Autobuy Gun',
